@@ -1,0 +1,99 @@
+I'll go through the exercise requirements and mark each task as done or pending based on the current implementation:
+
+TCP connection between server and multiple clients (relation of 1 to many)
+
+Status: Done ✅
+The current implementation uses clients []net.Conn and handles multiple client connections with goroutines.
+
+
+A name requirement to the client
+
+Status: Partially Done ⚠️
+The code prompts for a username and stores it in the users map.
+Need to add more robust username validation (e.g., non-empty, unique names).
+
+
+Control connections quantity
+
+Status: Pending ❌
+No current implementation of limiting to 10 connections.
+Need to add a check to prevent more than 10 clients from connecting.
+
+
+Clients must be able to send messages to the chat
+
+Status: Done ✅
+The Handle function allows clients to send and receive messages.
+
+
+Do not broadcast EMPTY messages from a client
+
+Status: Pending ❌
+Currently, no check for empty messages before broadcasting.
+
+
+Messages identified by time and username
+
+Status: Pending ❌
+Need to add timestamp formatting to messages.
+Current implementation only shows username.
+
+
+Previous messages uploaded to new client
+
+Status: Pending ❌
+No current mechanism to store and replay previous chat history.
+
+
+Client join notification
+
+Status: Partially Done ⚠️
+Notifies other clients when a user joins.
+Could improve the notification format.
+
+
+Client exit notification
+
+Status: Partially Done ⚠️
+Notifies other clients when a user disconnects.
+Could improve the notification format.
+
+
+All clients receive messages
+
+Status: Done ✅
+Broadcast mechanism is implemented.
+
+
+Clients remain connected if one leaves
+
+Status: Done ✅
+Current implementation maintains other client connections.
+
+
+Default port 8989, with usage message for other ports
+
+Status: Pending ❌
+No command-line argument handling for port specification.
+No usage message implementation.
+
+
+
+Additional Observations:
+
+Error handling could be improved
+No unit tests have been implemented
+Mutex usage is good, but could be optimized
+Need to implement a more robust connection management system
+
+To fully meet the exercise requirements, you'll need to:
+
+Implement connection limit (max 10 clients)
+Add timestamp to messages
+Create a message history mechanism
+Add command-line port handling
+Implement more robust error handling
+Create empty message filtering
+Add unit tests
+
+
