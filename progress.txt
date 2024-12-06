@@ -1,99 +1,132 @@
-I'll go through the exercise requirements and mark each task as done or pending based on the current implementation:
+Current Progress:
+TCP Connection:
 
-TCP connection between server and multiple clients (relation of 1 to many)
+Done: Established a TCP connection between the server and multiple clients.
 
-Status: Done ✅
-The current implementation uses clients []net.Conn and handles multiple client connections with goroutines.
+Mutex: Ensured thread safety using mutexes for concurrent access to the clients slice.
 
+Client Connections:
 
-A name requirement to the client
+Done: Handled client connections and disconnections.
 
-Status: Partially Done ⚠️
-The code prompts for a username and stores it in the users map.
-Need to add more robust username validation (e.g., non-empty, unique names).
+Broadcasting Messages: Implemented broadcasting of messages from one client to all others.
 
+Control Connections Quantity:
 
-Control connections quantity
+Pending: Implement logic to limit the number of concurrent connections to a maximum of 10.
 
-Status: Pending ❌
-No current implementation of limiting to 10 connections.
-Need to add a check to prevent more than 10 clients from connecting.
+Prompt for Username:
 
+Pending: Prompt clients for their usernames upon connection and store these usernames.
 
-Clients must be able to send messages to the chat
+Broadcast Join/Leave Notifications:
 
-Status: Done ✅
-The Handle function allows clients to send and receive messages.
+Pending: Notify all clients when a new client joins or leaves the chat.
 
+Message Formatting:
 
-Do not broadcast EMPTY messages from a client
+Pending: Format messages with timestamps and usernames in the specified format: [2020-01-20 15:48:41][client.name]:[client.message].
 
-Status: Pending ❌
-Currently, no check for empty messages before broadcasting.
+Previous Messages for New Clients:
 
+Pending: Send all previous chat messages to newly connected clients.
 
-Messages identified by time and username
+Next Steps:
+Prompting for and Storing Usernames:
 
-Status: Pending ❌
-Need to add timestamp formatting to messages.
-Current implementation only shows username.
+When a new client connects, prompt them for a username.
 
+Store the username in association with their connection.
 
-Previous messages uploaded to new client
+Controlling Connection Quantity:
 
-Status: Pending ❌
-No current mechanism to store and replay previous chat history.
+Implement logic to limit the number of concurrent client connections to 10.
 
+Reject additional connections if the limit is reached.
 
-Client join notification
+Broadcasting Join/Leave Notifications:
 
-Status: Partially Done ⚠️
-Notifies other clients when a user joins.
-Could improve the notification format.
+Notify all connected clients when a new client joins or an existing client leaves the chat.
 
+Example notification: "User [username] has joined the chat."
 
-Client exit notification
+Message Formatting with Timestamps:
 
-Status: Partially Done ⚠️
-Notifies other clients when a user disconnects.
-Could improve the notification format.
+Prepend each message with the current timestamp and the sender's username.
 
+Format: [2020-01-20 15:48:41][client.name]:[client.message].
 
-All clients receive messages
+Storing and Sending Previous Messages:
 
-Status: Done ✅
-Broadcast mechanism is implemented.
+Store all chat messages in a list.
 
+When a new client joins, send them all previous messages.
 
-Clients remain connected if one leaves
+Improving Error Handling:
 
-Status: Done ✅
-Current implementation maintains other client connections.
+Gracefully handle any potential errors during connection, disconnection, reading, or writing.
 
+Detailed Actions:
+Prompting for Usernames:
+Prompt: Upon connection, ask for a username.
 
-Default port 8989, with usage message for other ports
+Store: Store the username using a map or struct.
 
-Status: Pending ❌
-No command-line argument handling for port specification.
-No usage message implementation.
+Controlling Connection Quantity:
+Check: Before accepting a new connection, check the current number of connected clients.
 
+Reject: If the limit is reached, send a message to the client and close the connection.
 
+Broadcasting Join/Leave Notifications:
+Join: Broadcast a message like "User [username] has joined the chat."
 
-Additional Observations:
+Leave: Broadcast a message like "User [username] has left the chat."
 
-Error handling could be improved
-No unit tests have been implemented
-Mutex usage is good, but could be optimized
-Need to implement a more robust connection management system
+Message Formatting:
+Timestamp: Use time.Now().Format("2006-01-02 15:04:05") to get the current timestamp.
 
-To fully meet the exercise requirements, you'll need to:
+Format: Prepend the timestamp and username to each message.
 
-Implement connection limit (max 10 clients)
-Add timestamp to messages
-Create a message history mechanism
-Add command-line port handling
-Implement more robust error handling
-Create empty message filtering
-Add unit tests
+Storing and Sending Previous Messages:
+Store: Keep a list of all messages.
+
+Send: On new client connection, iterate over the stored messages and send them to the new client.
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	// if len(username) < 3 || len(username) > 50 {
+	// 	conn.Write([]byte("invalid username, try again : \nenter a new username : "))
+	// }
+	// for _, char := range username {
+	// 	if char > '~' || char < ' ' {
+	// 		conn.Write([]byte("invalid username, try again : \nenter a new username : "))
+	// 		conn.Close()
+	// 		continue
+	// 	}
+	// }
+	// mutex.Lock()
+
+	// for _, existing := range users {
+	// 	if username == existing {
+	// 		conn.Write([]byte("username already exists, try again : \nenter a new username : "))
+	// 		conn.Close()
+	// 		continue
+	// 	}
+	// }
+	// mutex.Unlock()

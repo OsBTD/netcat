@@ -6,17 +6,20 @@ import (
 	"net"
 	"strings"
 	"sync"
+	"time"
 )
 
 var (
 	clients []net.Conn
 	mutex   sync.Mutex
 	users   = make(map[net.Conn]string)
+	history []string
 )
 
 func main() {
+	port := ":8989"
 	const Maxclients = 10
-	listener, err := net.Listen("tcp", ":8989")
+	listener, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Println("error listening", err)
 	}
@@ -30,10 +33,9 @@ func main() {
 		}
 		mutex.Lock()
 		if len(clients) >= Maxclients {
-			conn.Write([]byte("maximum number of connections reached\nplease try again later..\n"))
+			conn.Write([]byte("maximum number of connections reached\nplease try again..\n"))
 			mutex.Unlock()
 			conn.Close()
-			continue
 		}
 		clients = append(clients, conn)
 
@@ -45,24 +47,59 @@ func main() {
 
 func Handle(conn net.Conn) {
 	conn.Write([]byte("Welcome to TCP-Chat!\n         _nnnn_\n        dGGGGMMb\n       @p~qp~~qMb\n       M|@||@) M|\n       @,----.JM|\n      JS^\\__/  qKL\n     dZP        qKRb\n    dZP          qKKb\n   fZP            SMMb\n   HZM            MMMM\n   FqM            MMMM\n __| \".        |\\dS\"qML\n |    `.       | `' \\Zq\n_)      \\.___.,|     .'\n\\____   )MMMMMP|   .'\n     `-'       `--'\n[ENTER YOUR NAME]: "))
+a:
+
 	bufferName := make([]byte, 1024)
 	m, _ := conn.Read(bufferName)
-	username := bufferName[:m]
-	users[conn] = strings.TrimSpace(string(username))
+	username := strings.TrimSpace(string(bufferName[:m]))
+	var uservalid bool = true
+	if len(username) < 3 || len(username) > 30 {
+		conn.Write([]byte("invalid username, try again : \nenter a new username : "))
+		uservalid = false
+		goto a
+	}
 
-	for _, client := range clients {
-		if client != conn && len(users[client]) > 0 {
-			log.Println("joined" + users[conn])
-			client.Write([]byte("\n" + users[conn] + " has joined the chat\n"))
+	for _, exists := range users {
+		if username == exists {
+			conn.Write([]byte("username already exists, try again : \nenter a new username : "))
+			uservalid = false
+			goto a
+
 		}
 	}
+
+	for _, char := range username {
+		if char >= '~' || char <= ' ' {
+			conn.Write([]byte("invalid username, try again : \nenter a new username : "))
+			uservalid = false
+			goto a
+
+		}
+	}
+
+	users[conn] = username
+	for _, entry := range history {
+		conn.Write([]byte(entry))
+	}
+	for _, client := range clients {
+		if client != conn && len(users[client]) > 0 && uservalid {
+			log.Println("joined" + users[conn])
+			client.Write([]byte("\n" + users[conn] + " has joined the chat.\n\nenter your message : "))
+		}
+	}
+
 	for {
+		conn.Write([]byte("enter your message : "))
 		buffer := make([]byte, 1024)
 		n, err := conn.Read(buffer)
 		message := buffer[:n]
+		formattedTime := time.Now().Format("02-01-2006 15:04:05")
+
+		history = append(history, formattedTime+" "+users[conn]+" : "+string(message)+"\n")
+
 		if err != nil {
 			if err == io.EOF {
-				log.Println(users[conn] + " has disconneted\n")
+				log.Println(users[conn] + " has disconneted\n\nenter your message : ")
 				mutex.Lock()
 				for i, client := range clients {
 					if client == conn {
@@ -70,11 +107,12 @@ func Handle(conn net.Conn) {
 						break
 					}
 				}
+
 				for _, client := range clients {
-					if conn != client && len(users[client]) > 0 {
+					if conn != client && len(users[client]) > 0 && uservalid {
 						log.Println("disconnected" + users[conn])
 
-						client.Write([]byte("\n" + users[conn] + " has disconneted\n"))
+						client.Write([]byte("\n" + users[conn] + " has disconneted\n\nenter your message : "))
 					}
 				}
 
@@ -94,10 +132,10 @@ func Handle(conn net.Conn) {
 		for _, client := range clients {
 			if conn == client {
 				continue
-			} else if conn != client && len(users[client]) > 0 && len(message) > 0 {
+			} else if conn != client && len(users[client]) > 0 && len(message) > 0 && uservalid {
 				log.Println("message" + users[conn])
 
-				_, err3 := client.Write([]byte("\n" + users[conn] + ":  " + string(message) + "\n"))
+				_, err3 := client.Write([]byte("\n" + formattedTime + " " + users[conn] + ":  " + string(message) + "\n"))
 				if err3 != nil {
 					log.Println("error sending message to client", err)
 				}
@@ -111,3 +149,8 @@ func Handle(conn net.Conn) {
 
 	}
 }
+
+// format messages + time done
+// history convo done
+// port args + handle errors + default port
+//
