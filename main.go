@@ -4,6 +4,7 @@ import (
 	"io"
 	"log"
 	"net"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -18,12 +19,28 @@ var (
 
 func main() {
 	port := ":8989"
+	args := os.Args[1:]
+	if len(args) > 0 {
+		var good bool
+
+		for _, char := range args[0] {
+			if char > '0' && char > '9' && strings.HasPrefix(args[0], ":") {
+				good = true
+			}
+		}
+		if good {
+			port = args[0]
+		} else {
+			log.Println("invalid port, defaulting to port :8989")
+			port = ":8989"
+		}
+	}
 	const Maxclients = 10
 	listener, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Println("error listening", err)
 	}
-	log.Println("server started at port 8989")
+	log.Println("server started at port " + port)
 	defer listener.Close()
 	for {
 		conn, err2 := listener.Accept()
