@@ -4,7 +4,6 @@ import (
 	"io"
 	"log"
 	"net"
-	"os"
 	"strings"
 	"sync"
 	"time"
@@ -19,22 +18,22 @@ var (
 
 func main() {
 	port := ":8989"
-	args := os.Args[1:]
-	if len(args) > 0 {
-		var good bool
+	// args := os.Args[1:]
+	// if len(args) > 0 {
+	// 	var good bool
 
-		for _, char := range args[0] {
-			if char > '0' && char > '9' && strings.HasPrefix(args[0], ":") {
-				good = true
-			}
-		}
-		if good {
-			port = args[0]
-		} else {
-			log.Println("invalid port, defaulting to port :8989")
-			port = ":8989"
-		}
-	}
+	// 	for _, char := range args[0] {
+	// 		if char > '0' && char > '9' && strings.HasPrefix(args[0], ":") {
+	// 			good = true
+	// 		}
+	// 	}
+	// 	if good {
+	// 		port = args[0]
+	// 	} else {
+	// 		log.Println("invalid port, defaulting to port :8989")
+	// 		port = ":8989"
+	// 	}
+	// }
 	const Maxclients = 10
 	listener, err := net.Listen("tcp", port)
 	if err != nil {
@@ -115,7 +114,7 @@ a:
 		history = append(history, formattedTime+" "+users[conn]+" : "+string(message)+"\n")
 
 		if err != nil {
-			if err == io.EOF {
+			if err == io.EOF || strings.Contains(err.Error(), "wsarecv: An existing connection was forcibly closed by the remote host"){
 				log.Println(users[conn] + " has disconneted\n\nenter your message : ")
 				mutex.Lock()
 				for i, client := range clients {
@@ -152,7 +151,7 @@ a:
 			} else if conn != client && len(users[client]) > 0 && len(message) > 0 && uservalid {
 				log.Println("message" + users[conn])
 
-				_, err3 := client.Write([]byte("\n" + formattedTime + " " + users[conn] + ":  " + string(message) + "\n"))
+				_, err3 := client.Write([]byte("\n" + formattedTime + " " + users[conn] + ":  " + string(message) + "\n\nenter your message : "))
 				if err3 != nil {
 					log.Println("error sending message to client", err)
 				}
