@@ -69,6 +69,8 @@ a:
 	m, _ := conn.Read(bufferName)
 	username := strings.TrimSpace(string(bufferName[:m]))
 	var uservalid bool = true
+	formattedTime := time.Now().Format("02-01-2006 15:04:05")
+
 	if len(username) < 3 || len(username) > 30 {
 		conn.Write([]byte("invalid username, try again : \nenter a new username : "))
 		uservalid = false
@@ -100,22 +102,22 @@ a:
 	for _, client := range clients {
 		if client != conn && len(users[client]) > 0 && uservalid {
 			log.Println("joined" + users[conn])
-			client.Write([]byte("\n" + users[conn] + " has joined the chat.\n\nenter your message : "))
+			client.Write([]byte("\n\033[32m" + users[conn] + " has joined the chat.\033[0m\n" + "[" + formattedTime + "][" + users[conn] + "]: "))
 		}
 	}
 
 	for {
-		conn.Write([]byte("enter your message : "))
+		conn.Write([]byte("[" + formattedTime + "][" + users[conn] + "]: "))
 		buffer := make([]byte, 1024)
 		n, err := conn.Read(buffer)
 		message := buffer[:n]
-		formattedTime := time.Now().Format("02-01-2006 15:04:05")
 
-		history = append(history, formattedTime+" "+users[conn]+" : "+string(message)+"\n")
-
+		if len(message) > 0 && string(message) != "\n" {
+			history = append(history, "["+formattedTime+"]["+users[conn]+"]: "+string(message)+"\n")
+		}
 		if err != nil {
-			if err == io.EOF || strings.Contains(err.Error(), "wsarecv: An existing connection was forcibly closed by the remote host"){
-				log.Println(users[conn] + " has disconneted\n\nenter your message : ")
+			if err == io.EOF || strings.Contains(err.Error(), "wsarecv: An existing connection was forcibly closed by the remote host") {
+				log.Println(users[conn] + " has left the chat.")
 				mutex.Lock()
 				for i, client := range clients {
 					if client == conn {
@@ -128,7 +130,7 @@ a:
 					if conn != client && len(users[client]) > 0 && uservalid {
 						log.Println("disconnected" + users[conn])
 
-						client.Write([]byte("\n" + users[conn] + " has disconneted\n\nenter your message : "))
+						client.Write([]byte("\n\033[31m" + users[conn] + " has left the chat.\033[0m\n" + "[" + formattedTime + "][" + users[conn] + "]: "))
 					}
 				}
 
@@ -148,16 +150,16 @@ a:
 		for _, client := range clients {
 			if conn == client {
 				continue
-			} else if conn != client && len(users[client]) > 0 && len(message) > 0 && uservalid {
+			} else if conn != client && len(users[client]) > 0 && len(message) > 0 && string(message) != "\n" && uservalid {
 				log.Println("message" + users[conn])
 
-				_, err3 := client.Write([]byte("\n" + formattedTime + " " + users[conn] + ":  " + string(message) + "\n\nenter your message : "))
+				_, err3 := client.Write([]byte("\n[" + formattedTime + "] [" + users[conn] + "]: " + string(message) + "\n[" + formattedTime + "] [" + users[conn] + "]: "))
 				if err3 != nil {
 					log.Println("error sending message to client", err)
 				}
 
 			} else if conn == client && len(message) == 0 {
-				client.Write([]byte("\n"))
+				client.Write([]byte("\n[" + formattedTime + "] [" + users[conn] + "]: "))
 				continue
 			}
 		}
