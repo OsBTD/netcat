@@ -1,0 +1,29 @@
+Info: 2025/01/18 15:49:33 Chat Server Started : server listening for connections on [::]:8989
+Info: 2025/01/18 15:49:41 New connection from 127.0.0.1:38200
+Info: 2025/01/18 15:49:48 New connection from 127.0.0.1:40238
+Info: 2025/01/18 15:49:51 bob has joined the chat.
+Info: 2025/01/18 15:49:54 jjo has joined the chat.
+Info: 2025/01/18 15:52:51 Stopping the server ...
+Info: 2025/01/18 15:52:51 bob  exited the chat server
+Info: 2025/01/18 15:52:51 jjo  exited the chat server
+Info: 2025/01/18 15:52:51 Server has been stopped
+
+Error: 2025/01/18 15:53:04 Server failed to start, Error listening: listen tcp 0.0.0.0:2: bind: permission denied
+Error: 2025/01/18 15:53:22 Server failed to start, Error listening: listen tcp 0.0.0.0:2: bind: permission denied
+Info: 2025/01/18 16:03:05 Chat Server Started : server listening for connections on [::]:8989
+Info: 2025/01/18 16:17:33 New connection from 127.0.0.1:60582
+Info: 2025/01/18 16:17:37 New connection from 127.0.0.1:56034
+Info: 2025/01/18 16:17:39 fff has joined the chat.
+Info: 2025/01/18 16:17:42 sds has joined the chat.
+Info: 2025/01/18 16:24:20 Stopping the server ...
+Info: 2025/01/18 16:24:20 fff  exited the chat server
+Info: 2025/01/18 16:24:20 sds  exited the chat server
+Info: 2025/01/18 16:24:20 Server has been stopped
+
+Error: 2025/01/18 16:24:22 Server failed to start, Error listening: listen tcp 0.0.0.0:2: bind: permission denied
+Error: 2025/01/18 16:24:43 Server failed to start, Error listening: listen tcp 0.0.0.0:2: bind: permission denied
+Info: 2025/01/18 16:24:48 Stopping the server ...
+Info: 2025/01/18 16:24:48 Server has been stopped
+
+Error: 2025/01/18 16:25:23 Server failed to start, Error listening: listen tcp 0.0.0.0:2: bind: permission denied
+Error: 2025/01/18 16:25:32 Server failed to start, Error listening: listen tcp 0.0.0.0:2: bind: permission denied
